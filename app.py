@@ -19,9 +19,13 @@ end_date = st.sidebar.date_input("End Date", value=pd.to_datetime("today"))
 @st.cache_data
 def load_data(ticker, start, end):
     df = yf.download(ticker, start=start, end=end)
+    if df.empty:
+        st.error(f"No data found for '{ticker}' between {start} and {end}. Please try a different ticker or date range.")
+        st.stop()  # Safely stop execution
     df.reset_index(inplace=True)
     df = ta.add_all_ta_features(df, open="Open", high="High", low="Low", close="Close", volume="Volume", fillna=True)
     return df
+
 
 data_load_state = st.text("Loading data...")
 data = load_data(ticker, start_date, end_date)
